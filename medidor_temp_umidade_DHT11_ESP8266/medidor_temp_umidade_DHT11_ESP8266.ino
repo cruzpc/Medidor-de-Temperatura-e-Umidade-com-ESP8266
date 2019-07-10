@@ -2,89 +2,80 @@
 #include <ESP8266WebServer.h>
 #include "DHT.h"
 
-// Uncomment one of the lines below for whatever DHT sensor type you're using!
-#define DHTTYPE DHT11   // DHT 11
+// Define pino do sensor
+#define pinoDHT 5 
 
 // colocar a SSID e a senha da rede que o ESP8266 irá conectar:
-const char* ssid = "net ap 302";  // Enter SSID here
-const char* password = "5859abcd";  //Enter Password here
+const char* ssid = "SAUL";
+const char* senha = "saul1234"; 
 
 // cria as variáveis globais para armazenar os valores de temperatura e umidade
 float temperatura;
 float umidade;
-float Temperature;
-float Humidity;
 
+// inicializa o servidor http no ESP8266
 ESP8266WebServer server(80);
-
-// DHT Sensor
-#define DHTPin 5 
                
-// Initialize DHT sensor.
-DHT dht(DHTPin, DHTTYPE);                
+// Inicializa o sensor, cria um objeto DHT dht
+DHT dht(pinoDHT, DHT11);                
 
 void setup() {
-  
+
+  // velocidade da conexão serial
   Serial.begin(115200);
   delay(100);
   
-  pinMode(DHTPin, INPUT);
+  pinMode(pinoDHT, INPUT);
 
   dht.begin();              
 
-  Serial.println("Connecting to ");
+  Serial.print("Conectando a: ");
   Serial.println(ssid);
 
-  //connect to your local wi-fi network
-  WiFi.begin(ssid, password);
+  //conecta a rede
+  WiFi.begin(ssid, senha);
 
-  //check wi-fi is connected to wi-fi network
+  //verifica se está conectado, se não printa .... no serial
   while (WiFi.status() != WL_CONNECTED) {
-  delay(1000);
-  Serial.print(".");
-  }
+    delay(800);
+    Serial.print(".");
+    }
   Serial.println("");
-  Serial.println("WiFi connected..!");
-  Serial.print("Got IP: ");  Serial.println(WiFi.localIP());
+  Serial.println("WiFi CONECTADO!!!");
+  Serial.print("IP: ");  Serial.println(WiFi.localIP());
 
   server.on("/", handle_OnConnect);
   server.onNotFound(handle_NotFound);
 
   server.begin();
-  Serial.println("HTTP server started");
+  Serial.println("Servido HTTP iniciado!");
 
 }
 void loop() {
   
   server.handleClient();
 
-  //temperatura = dht.readTemperature();
-  //umidade = dht.readHumidy();
-  
-
-  Serial.print("Temperatura:");
-  Serial.println(Temperature);
-  Serial.print("Umidade:");
-  Serial.println(Humidity);
-  delay(3000);
   
 }
 
 void handle_OnConnect() {
 
-  Temperature = dht.readTemperature(); // Gets the values of the temperature
-  Humidity = dht.readHumidity(); // Gets the values of the humidity 
-  server.send(200, "text/html", SendHTML(Temperature,Humidity)); 
-
+  temperatura = dht.readTemperature(); // pega valor de temperatura do sensor DHT e guarda na variavel temperatura
+  umidade = dht.readHumidity(); // pega valor de umidade do sensor DHT e guarda na variavel umidade 
+  server.send(200, "text/html", SendHTML(temperatura,umidade)); 
+  Serial.print("Temperatura:");
+  Serial.println(temperatura);
+  Serial.print("Umidade:");
+  Serial.println(umidade);
 }
 
 void handle_NotFound(){
 
-  server.send(404, "text/plain", "Not found");
+  server.send(404, "text/plain", "404 Não Encontrado");
 
 }
 
-String SendHTML(float Temperaturestat,float Humiditystat){
+String SendHTML(float Temperaturastat,float Umidadestat){
   
   String ptr = "<!DOCTYPE html> <html>\n";
   ptr +="<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
@@ -98,10 +89,10 @@ String SendHTML(float Temperaturestat,float Humiditystat){
   ptr +="<div id=\"webpage\">\n";
   ptr +="<h1>Medidor de temperatura e umidade</h1>\n";
   ptr +="<p>Temperatura: ";
-  ptr +=(int)Temperaturestat;
-  ptr +=" C</p>";
+  ptr +=(int)Temperaturastat;
+  ptr +=" &deg;C</p>";
   ptr +="<p>Umidade: ";
-  ptr +=(int)Humiditystat;
+  ptr +=(int)Umidadestat;
   ptr +=" %</p>";
   ptr +="</div>\n";
   ptr +="</body>\n";
