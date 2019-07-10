@@ -17,3 +17,4 @@ O objetivo do projeto é permitir a leitura dos valores de temperatura e umidade
 - Alison Medina (Engenharia de Controle e Automação - UFSM)
 - Gabriel P. Cruz (Engenharia da Computação - UFSM)
 - Linda Dotto (Engenharia de Controle e Automação - UFSM)
+- Carlos Frantz (Automação Industrial - CTISM)
